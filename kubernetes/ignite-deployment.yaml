@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: sherlock-ignite
+  name: ignite
 spec:
   # A number of Ignite pods to be started by Kubernetes initially.
   replicas: 2
@@ -10,17 +10,12 @@ spec:
       labels:
         app: ignite
     spec:
+      serviceAccountName: ignite
       containers:
       - name: ignite-node
-        image: apacheignite/ignite:2.7.0
-        env:
-        - name: OPTION_LIBS
-          value: ignite-kubernetes
-        - name: CONFIG_URI
-          value: https://raw.githubusercontent.com/hienduyph/ignite-k8s/master/kubernetes/conf/kube-rbac.xml
+        image: hienduyph/ignite:2.8.0-nightly
+        imagePullPolicy: Always
         ports:
-        # Ports to open.
-        # Might be optional depending on your Kubernetes environment.
         - containerPort: 11211 # REST port number.
         - containerPort: 47100 # communication SPI port number.
         - containerPort: 47500 # discovery SPI port number.
@@ -39,11 +34,11 @@ metadata:
   # The name must be equal to TcpDiscoveryKubernetesIpFinder.namespaceName
   namespace: danalytics
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: rest
-      port: 8080
-      targetPort: 8080
+      port: 11211
+      targetPort: 11211
     - name: sql
       port: 10800
       targetPort: 10800
